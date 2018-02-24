@@ -1,4 +1,6 @@
 # dependencies to cross compile (win32)
+git clone https://github.com/wagerr/wagerr.git -b master --depth=1
+
 sudo apt-get update
 sudo apt-get install g++-mingw-w64-x86-64 mingw-w64-x86-64-dev
 sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.

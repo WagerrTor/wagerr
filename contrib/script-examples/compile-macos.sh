@@ -1,4 +1,6 @@
 # dependencies to cross compile (arm64)
+git clone https://github.com/wagerr/wagerr.git -b master --depth=1
+
 sudo apt-get update
 sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python-setuptools
 cd ../../depends
