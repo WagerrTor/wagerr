@@ -2216,10 +2216,10 @@ int64_t GetBlockValue(int nHeight)
             // PoW Phase does not produce any coins
             nSubsidy = 0 * COIN;
         } else if (nHeight > Params().LAST_POW_BLOCK() && nHeight <= 10000) {
-            // PoS - Phase 1 lasts until block 1110)
+            // PoS - Phase 1 lasts until block 10000
             nSubsidy = 0 * COIN;
         } else if (nHeight > Params().LAST_POW_BLOCK() && nHeight > 10000) {
-            // PoS - Phase 2 lasts until - undefined)
+            // PoS - Phase 2 lasts until - undefined
             nSubsidy = 3.8 * COIN;
         } else {
             nSubsidy = 0 * COIN;

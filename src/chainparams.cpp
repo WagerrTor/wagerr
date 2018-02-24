@@ -56,18 +56,21 @@ static Checkpoints::MapCheckpoints mapCheckpoints =
     boost::assign::map_list_of
     
     // WagerrDevs - RELEASE CHANGE - Checkpoins, timestamp of last checkpoint, total nr. of transactions
-    (1, uint256("000001364c4ed20f1b240810b5aa91fee23ae9b64b6e746b594b611cf6d8c87b"))             // First PoW premine block
-    (101, uint256("0000005e89a1fab52bf996e7eb7d653962a0eb064c16c09887504797deb7feaf"))           // Last premine block
-    (1001, uint256("0000002a314058a8f61293e18ddbef5664a2097ac0178005f593444549dd5b8c"))          // Last PoW block
-    (4559, uint256("f26ac8c87c21ab26e34340c54b2a16c0f1b1c1cce2202e0eb6e79ca9579e2022"))          // 
-    (5530, uint256("b3a8e6eb90085394c1af916d5690fd5b83d53c43cf60c7b6dd1e904e0ede8e88"))          // Block on which switch off happened, 5531, 5532 differed
-    (6160, uint256("7e7e688ae130d6b0bdfd3f059c6be93ba5e59c0bc28eb13f09e8158092151ad4"));         // Last block
+    (     1, uint256("000001364c4ed20f1b240810b5aa91fee23ae9b64b6e746b594b611cf6d8c87b"))          // First PoW premine block
+    (   101, uint256("0000005e89a1fab52bf996e7eb7d653962a0eb064c16c09887504797deb7feaf"))          // Last premine block
+    (  1001, uint256("0000002a314058a8f61293e18ddbef5664a2097ac0178005f593444549dd5b8c"))          // Last PoW block
+    (  4559, uint256("f26ac8c87c21ab26e34340c54b2a16c0f1b1c1cce2202e0eb6e79ca9579e2022"))          // pre public release 
+    (  5530, uint256("b3a8e6eb90085394c1af916d5690fd5b83d53c43cf60c7b6dd1e904e0ede8e88"))          // Block on which switch off happened, 5531, 5532 differed
+    (  5532, uint256("dc95821e2998f2c30c96652ad7b76efb6012d8548c9e9dcf6148142482420df2"))          // First issue
+    (  6160, uint256("7e7e688ae130d6b0bdfd3f059c6be93ba5e59c0bc28eb13f09e8158092151ad4"))          // v1.4.32
+    ( 10000, uint256("62e103da664b6c8cf8158992848941f6ffd7224f6296e299568f544483ca26f0"))          // PoS - Phase 2 lasts until - undefined)
+    ( 10881, uint256("43f347afa3e772740ea1200790d37f4d34963d23ca7c1613d62bbeef170c3669"));         // Last block
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1519155533, // * UNIX timestamp of last checkpoint block
-    11985,      // * total number of transactions between genesis and last checkpoint
+    1519440995, // * UNIX timestamp of last checkpoint block
+    27265,      // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
-    2000        // * estimated number of transactions per day after checkpoint
+    10000        // * estimated number of transactions per day after checkpoint
 };
 
 static Checkpoints::MapCheckpoints mapCheckpointsTestnet =
