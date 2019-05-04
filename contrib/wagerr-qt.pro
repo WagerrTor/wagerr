@@ -499,7 +499,7 @@ SOURCES += src/activemasternode.cpp \
            src/qt/transactiondesc.cpp \
            src/qt/transactiondescdialog.cpp \
            src/qt/transactionfilterproxy.cpp \
-           src/transactionrecord.cpp \
+           src/qt/transactionrecord.cpp \
            src/qt/transactiontablemodel.cpp \
            src/qt/transactionview.cpp \
            src/qt/utilitydialog.cpp \

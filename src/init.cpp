@@ -194,66 +194,6 @@ void PrepareShutdown()
     if (!lockShutdown)
         return;
 
-    // TODO - We are assuming that the use of locks will not be required when
-    // writing a map index to a .dat file because all writing to a
-    // .dat should happen on the same thread. If this is not the case
-    // then a lock mechanism will have to be implemented to ensure we don't
-    // corrupt any .dat when we want the write to it.
-    // Get the latest block hash.
-    CBlockIndex *blockIndex = chainActive[chainActive.Height()];
-
-    CBlock block;
-    ReadBlockFromDisk(block, blockIndex);
-    uint256 lastBlockHash = block.GetHash();
-
-    // Write the events index to disk.
-    eventIndex_t eventIndex;
-    CEventDB::GetEvents(eventIndex);
-    CEventDB edb;
-
-    if (!edb.Write(eventIndex, lastBlockHash))
-        LogPrintf("Failed to write to the events.dat\n");
-
-    // Write the sports mapping index to sports.dat.
-    mappingIndex_t sportsIndex;
-    CMappingDB msdb("sports.dat");
-    msdb.GetSports(sportsIndex);
-
-    if (!msdb.Write(sportsIndex, lastBlockHash))
-        LogPrintf("Failed to write to the sports.dat\n");
-
-    // Write the rounds mapping index to rounds.dat.
-    mappingIndex_t roundsIndex;
-    CMappingDB mrdb("rounds.dat");
-    mrdb.GetRounds(roundsIndex);
-
-    if (!mrdb.Write(roundsIndex, lastBlockHash))
-        LogPrintf("Failed to write to the rounds.dat\n");
-
-    // Write the teams mapping index to teams.dat.
-    mappingIndex_t teamsIndex;
-    CMappingDB mtdb("teams.dat");
-    mtdb.GetTeams(teamsIndex);
-
-    if (!mtdb.Write(teamsIndex, lastBlockHash))
-        LogPrintf("Failed to write to the teams.dat\n");
-
-    // Write the tournaments mapping index to tournaments.dat.
-    mappingIndex_t tournamentsIndex;
-    CMappingDB mtodb("tournaments.dat");
-    mtodb.GetTournaments(tournamentsIndex);
-
-    if (!mtodb.Write(tournamentsIndex, lastBlockHash))
-        LogPrintf("Failed to write to the tournaments.dat\n");
-
-    // Write the results index to results.dat.
-    CResultDB rdb;
-    resultsIndex_t resultsIndex;
-    rdb.GetResults(resultsIndex);
-
-    if (!rdb.Write(resultsIndex, lastBlockHash))
-        LogPrintf("Failed to write to the results.dat\n");
-
     /// Note: Shutdown() must be able to handle cases in which AppInit2() failed part of the way,
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective

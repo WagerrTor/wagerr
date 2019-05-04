@@ -20,7 +20,6 @@
 #include "walletdb.h"
 #include "zwgrchain.h"
 
-//#include "qt/transactionrecord.h"
 #include "betting/bet.h"
 
 #include <cstdlib>
@@ -4671,3 +4670,143 @@ UniValue clearspendcache(const UniValue& params, bool fHelp)
     }
     throw JSONRPCError(RPC_WALLET_ERROR, "Error: Spend cache not cleared!");
 }
+
+/*
+void ListTransactionRecords(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
+{
+    std::vector<TransactionRecord> vRecs = TransactionRecord::decomposeTransaction(pwalletMain, wtx);
+    for(auto&& vRec: vRecs) {
+        UniValue entry(UniValue::VOBJ);
+        entry.push_back(Pair("type", vRec.GetTransactionRecordType()));
+        entry.push_back(Pair("transactionid", vRec.getTxID()));
+        entry.push_back(Pair("outputindex", vRec.getOutputIndex()));
+        entry.push_back(Pair("time", vRec.time));
+        entry.push_back(Pair("debit", ValueFromAmount(vRec.debit)));
+        entry.push_back(Pair("credit", ValueFromAmount(vRec.credit)));
+        entry.push_back(Pair("involvesWatchonly", vRec.involvesWatchAddress));
+
+        if (fLong) {
+            if (vRec.statusUpdateNeeded()) vRec.updateStatus(wtx);
+
+            entry.push_back(Pair("depth", vRec.status.depth));
+            entry.push_back(Pair("status", vRec.GetTransactionStatus()));
+            entry.push_back(Pair("countsForBalance", vRec.status.countsForBalance));
+            entry.push_back(Pair("matures_in", vRec.status.matures_in));
+            entry.push_back(Pair("open_for", vRec.status.open_for));
+            entry.push_back(Pair("cur_num_blocks", vRec.status.cur_num_blocks));
+            entry.push_back(Pair("cur_num_ix_locks", vRec.status.cur_num_ix_locks));
+        }
+        ret.push_back(entry);
+    }
+}
+*/
+
+/*
+UniValue listtransactionrecords(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() > 4)
+        throw runtime_error(
+                "listtransactionrecords ( \"account\" count from includeWatchonly)\n"
+                "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
+
+                "\nArguments:\n"
+                "1. \"account\"    (string, optional) The account name. If not included, it will list all transactions for all accounts.\n"
+                "                                     If \"\" is set, it will list transactions for the default account.\n"
+                "2. count          (numeric, optional, default=10) The number of transactions to return\n"
+                "3. from           (numeric, optional, default=0) The number of transactions to skip\n"
+                "4. includeWatchonly (bool, optional, default=false) Include transactions to watchonly addresses (see 'importaddress')\n"
+
+                "\nResult:\n"
+                "[\n"
+                "  {\n"
+                "    \"type\" : \"type\",                         (string) The output type.\n"
+                "    \"transactionid\" : \"hash\",                (string) The transaction hash in hex.\n"
+                "    \"outputindex\" : n,                       (numeric) The transaction output index.\n"
+                "    \"time\" : ttt,                            (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT).\n"
+                "    \"debit\" : x.xxx,                         (numeric) The transaction debit amount. This is negative and only available \n"
+                "                                                 for the 'send' category of transactions.\n"
+                "    \"credit\" : x.xxx,                        (numeric) The transaction debit amount. Available for the 'receive' category \n"
+                "                                                 of transactions.\n"
+                "    \"involvesWatchonly\" : true|false,        (boolean) Only returned if imported addresses were involved in transaction.\n"
+                "    \"depth\" : n,                             (numeric) The depth of the transaction in the blockchain.\n"
+                "    \"status\" : \"status\",                     (string) The transaction status.\n"
+                "    \"countsForBalance\" : true|false,         (boolean) Does the transaction count towards the available balance.\n"
+                "    \"matures_in\" : n,                        (numeric) The number of blocks until the transaction is mature.\n"
+                "    \"open_for\" : n,                          (numeric) The number of blocks that need to be mined before finalization.\n"
+                "    \"cur_num_blocks\" : n,                    (numeric) The current number of blocks.\n"
+                "    \"cur_num_ix_locks\" : n,                  (numeric) When to update transaction for ix locks.\n"
+                "  }\n"
+                "]\n"
+
+                "\nExamples:\n"
+                "\nList the most recent 10 transactions in the systems\n" +
+                HelpExampleCli("listtransactionrecords", "") +
+                "\nList the most recent 10 transactions for the tabby account\n" +
+                HelpExampleCli("listtransactionrecords", "\"tabby\"") +
+                "\nList transactions 100 to 120 from the tabby account\n" +
+                HelpExampleCli("listtransactionrecords", "\"tabby\" 20 100") +
+                "\nAs a json rpc call\n" +
+                HelpExampleRpc("listtransactionrecords", "\"tabby\", 20, 100"));
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    string strAccount = "*";
+    if (params.size() > 0)
+        strAccount = params[0].get_str();
+    int nCount = 10;
+    if (params.size() > 1)
+        nCount = params[1].get_int();
+    int nFrom = 0;
+    if (params.size() > 2)
+        nFrom = params[2].get_int();
+    isminefilter filter = ISMINE_SPENDABLE;
+    if (params.size() > 3)
+        if (params[3].get_bool())
+            filter = filter | ISMINE_WATCH_ONLY;
+
+    if (nCount < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative count");
+    if (nFrom < 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative from");
+
+    UniValue ret(UniValue::VARR);
+
+    const CWallet::TxItems & txOrdered = pwalletMain->wtxOrdered;
+
+    // iterate backwards until we have nCount items to return:
+    for (CWallet::TxItems::const_reverse_iterator it = txOrdered.rbegin(); it != txOrdered.rend(); ++it) {
+        CWalletTx* const pwtx = (*it).second.first;
+        if (pwtx != 0){}
+            ListTransactionRecords(*pwtx, strAccount, 0, true, ret, filter);
+        CAccountingEntry* const pacentry = (*it).second.second;
+        if (pacentry != 0)
+            AcentryToJSON(*pacentry, strAccount, ret);
+
+        if ((int)ret.size() >= (nCount + nFrom)) break;
+    }
+    // ret is newest to oldest
+
+    if (nFrom > (int)ret.size())
+        nFrom = ret.size();
+    if ((nFrom + nCount) > (int)ret.size())
+        nCount = ret.size() - nFrom;
+
+    vector<UniValue> arrTmp = ret.getValues();
+
+    vector<UniValue>::iterator first = arrTmp.begin();
+    std::advance(first, nFrom);
+    vector<UniValue>::iterator last = arrTmp.begin();
+    std::advance(last, nFrom+nCount);
+
+    if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
+    if (first != arrTmp.begin()) arrTmp.erase(arrTmp.begin(), first);
+
+    std::reverse(arrTmp.begin(), arrTmp.end()); // Return oldest to newest
+
+    ret.clear();
+    ret.setArray();
+    ret.push_backV(arrTmp);
+
+    return ret;
+}
+*/
