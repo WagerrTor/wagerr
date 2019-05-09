@@ -18,7 +18,7 @@ class PoSDoubleSpend(WAGERR_FakeStakeTest):
     def run_test(self):
         self.description = "Covers the scenario of a valid PoS block with a valid coinstake transaction where the coinstake input prevout is double spent in one of the other transactions in the same block."
         self.init_test()
-        INITAL_MINED_BLOCKS = 300
+        INITAL_MINED_BLOCKS = 200
         FORK_DEPTH = 30
         self.NUM_BLOCKS = 3
 
