@@ -128,5 +128,20 @@
     "args": ["-create", "outscript=0:OP_DROP", "nversion=1"],
     "output_cmp": "txcreatescript1.hex",
     "description": "Create a new transaction with a single output script (OP_DROP)"
+  },
+ { "exec": "./wagerr-tx","args": ["-json", "-create", "outscript=0:OP_DROP", "nversion=1"],
+    "output_cmp": "txcreatescript1.json",
+    "description": "Create a new transaction with a single output script (OP_DROP) (output as json)"
+  },
+  { "exec": "./wagerr-tx",
+    "args":
+    ["-create",
+     "in=4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485:0",
+     "set=privatekeys:[\"WYcDPdWMWRSCxe5uPGwFi1RYke6EU2yfFr8n88aHoLnxCqZB6XtF\"]",
+     "set=prevtxs:[{\"txid\":\"4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485\",\"vout\":0,\"scriptPubKey\":\"4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485\"}]",
+     "sign=ALL",
+     "outaddr=0.001:WbBAzKgprFUs7dLxjXHXEDzNXXnVZAKSZg"],
+    "output_cmp": "txcreatesign.hex",
+    "description": "Creates a new transaction with a single input and a single output, and then signs the transaction"
   }
 ]
