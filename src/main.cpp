@@ -2851,7 +2851,7 @@ bool RecalculateWGRSupply(int nHeightStart)
                 if (i == 0 && tx.IsCoinStake())
                     continue;
 
-                if (pindex->nHeight >= Params().BetStartHeight()) {
+                if (pindex->nHeight >= Params().BetV1StartHeight()) {
                     if (tx.vout[i].scriptPubKey.IsUnspendable())
                         continue;
                 }
@@ -3248,7 +3248,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nMint = pindex->nMoneySupply - nMoneySupplyPrev + nFees;
     
     // adjust MoneySupply to account for WGR bet/burned, after first calculating actual Mint (pindex->nMint above)
-    if (pindex->nHeight >= Params().BetStartHeight() ) {
+    if (pindex->nHeight >= Params().BetV1StartHeight() ) {
         pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn - nValueBurned;
     }
 //    LogPrintf("XX69----------> ConnectBlock(): nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zWgrSpent: %s\n",
@@ -3271,7 +3271,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<CBetOut> vExpectedPLPayouts;
     std::vector<CBetOut> vExpectedCGLottoPayouts;
 
-    if( pindex->nHeight > Params().BetStartHeight()) {
+    if( pindex->nHeight > Params().BetV2StartHeight()) {
         std::string strBetNetBlockTxt;
         std::ostringstream BetNetBlockTxt;
         std::ostringstream BetNetExpectedTxt;
@@ -3310,30 +3310,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     // Validate bet payouts nExpectedMint against the block pindex->nMint to ensure reward wont pay to much.
-    /*  **TODO**
-        *
-        * Kokary: there are some oddities with fee calculation:
-        * - Coinstake transactions do have fees, resulting in rougly 4400 satoshi less mints
-        * - When there are no masternodes to pay, those MN rewards are not paid, resulting in 1*COIN less than expected mints
-        * - Testnet is polluted with test coinstake payouts between block 15195 and 15220
-        * A 'safe' check that also checks for underminting coins would be something like this:
-        *     if ((pindex->nHeight < 15195 || pindex->nHeight > 15220) && (pindex->nMint > nExpectedMint || pindex->nMint < (nExpectedMint - 2*COIN) || !IsBlockValueValid( block, nExpectedMint, pindex->nMint )) )
-        *         return state.DoS(100, error("ConnectBlock() : reward pays wrong amount (actual=%s vs limit=%s)", FormatMoney(pindex->nMint), FormatMoney(nExpectedMint)), REJECT_INVALID, "bad-cb-amount");
-        * Though if we keep this check for minimum mint, it should be moved to IsBlockValueValid().
-     */
-    /*
-    if (Params().NetworkID() == CBaseChainParams::TESTNET && (pindex->nHeight >= Params().ZerocoinCheckTXexclude() || pindex->nHeight <= Params().ZerocoinCheckTX())) {
-        LogPrintf("Skipping validation of mint size on testnet subset");
-    } else if (pindex->nMint > nExpectedMint || pindex->nMint < (nExpectedMint - 2*COIN) || !IsBlockValueValid( block, nExpectedMint, pindex->nMint)) {
+    if (!IsBlockValueValid( block, nExpectedMint, pindex->nMint)) {
         return state.DoS(100, error("ConnectBlock() : reward pays wrong amount (actual=%s vs limit=%s)", FormatMoney(pindex->nMint), FormatMoney(nExpectedMint)), REJECT_INVALID, "bad-cb-amount");
     }
-    */
     if (!IsBlockPayoutsValid(vExpectedAllPayouts, block)) {
-        if (Params().NetworkID() == CBaseChainParams::TESTNET && (pindex->nHeight >= Params().ZerocoinCheckTXexclude() && pindex->nHeight <= Params().ZerocoinCheckTX())) {
-            LogPrintf("ConnectBlock() - Skipping validation of bet payouts on testnet subset : Bet payout TX's don't match up with block payout TX's at block %i\n", pindex->nHeight);
-        } else  {
-            return state.DoS(100, error("ConnectBlock() : Bet payout TX's don't match up with block payout TX's %i ", pindex->nHeight), REJECT_INVALID, "bad-cb-payout");
-        }
+        return state.DoS(100, error("ConnectBlock() : Bet payout TX's don't match up with block payout TX's %i ", pindex->nHeight), REJECT_INVALID, "bad-cb-payout");
     }
 
     // Clear all the payout vectors.
@@ -4927,7 +4908,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
 
     bool eiUpdated = false;
     // Look through the block for any events, results or mapping TX.
-    if (pindex->nHeight > Params().BetStartHeight()) {
+    if (pindex->nHeight > Params().BetV2StartHeight()) {
         for (CTransaction& tx : block.vtx) {
 
             // Ensure the event TX has come from Oracle wallet.
